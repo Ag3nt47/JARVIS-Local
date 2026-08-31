@@ -1,0 +1,19 @@
+* text=auto
+
+*.py text eol=lf
+*.toml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+*.ico binary
+*.png binary
+*.task binary
+*.wasm binary
+
+web/vendor/** linguist-vendored
+web/vendor/mediapipe/vision_bundle.mjs -diff
+web/vendor/mediapipe/vision_wasm*_internal.js -diff

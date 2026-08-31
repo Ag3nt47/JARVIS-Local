@@ -1,0 +1,33 @@
+name: Bug report
+description: Report a reproducible JARVIS defect without including secrets or personal data.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Never include API keys, tokens, private transcripts, phone numbers, or local file contents.
+  - type: input
+    id: version
+    attributes:
+      label: JARVIS version
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Use non-sensitive fixtures.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true

@@ -1,0 +1,65 @@
+[system]
+instance_name = "Jarvis Prime"
+host = "127.0.0.1"
+port = 8765
+data_dir = "./data"
+workspace_roots = ["./workspace"]
+log_level = "INFO"
+
+[ollama]
+base_url = "http://127.0.0.1:11434"
+chat_model = "qwen3:4b"
+embedding_model = "nomic-embed-text:latest"
+request_timeout_seconds = 300
+context_window = 8192
+max_agent_steps = 6
+temperature = 0.2
+
+[security]
+local_only = true
+allowed_roots = ["./workspace", 'F:\BRAIN DRIVE\_root']
+require_approval_for_writes = true
+approval_ttl_seconds = 900
+max_file_read_bytes = 1048576
+max_file_write_bytes = 262144
+deny_hidden_paths = true
+audit_secret_env = "JARVIS_AUDIT_SECRET"
+
+[tasks]
+scan_interval_seconds = 1800
+quiet_hours_enabled = true
+quiet_start = "23:00"
+quiet_end = "07:00"
+dedupe_window_hours = 24
+
+[telemetry]
+enabled = true
+sample_interval_seconds = 5
+cpu_alert_percent = 90
+memory_alert_percent = 90
+disk_alert_percent = 90
+
+[messaging]
+default_provider = "local_log"
+outbound_enabled = false
+
+[nodes]
+discovery_enabled = false
+service_type = "_jarvis-node._tcp.local."
+health_timeout_seconds = 3
+
+[federation]
+enabled = false
+transport = "tailscale"
+remote_token_env = "JARVIS_REMOTE_TOKEN"
+compute_enabled = true
+data_enabled = false
+admin_capable = false
+require_target_approval = true
+shared_roots = ['F:\BRAIN DRIVE\_root']
+
+[memory]
+enabled = true
+chunk_size_chars = 1400
+chunk_overlap_chars = 180
+max_results = 8

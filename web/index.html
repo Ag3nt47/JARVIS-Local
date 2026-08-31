@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071015">
+  <meta name="description" content="JARVIS local intelligence command interface">
+  <title>JARVIS // Command Interface</title>
+  <link rel="stylesheet" href="./styles.css?app_version=0.4.0">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to command interface</a>
+
+  <div id="offlineBanner" class="offline-banner" role="status" hidden>
+    <span class="status-dot status-dot--warning" aria-hidden="true"></span>
+    <span><strong>Safe offline mode.</strong> The core is unreachable. Local tasks and memory remain available; model actions are paused.</span>
+    <button id="retryConnection" class="text-button" type="button">Retry</button>
+  </div>
+
+  <header class="topbar">
+    <div class="brand" aria-label="JARVIS command interface">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>
+        <strong>JARVIS</strong>
+        <small>Just A Rather Very Intelligent System</small>
+      </span>
+    </div>
+
+    <div class="system-readout" aria-label="System status">
+      <div>
+        <span class="eyebrow">CORE</span>
+        <span id="coreStatus" class="status-value"><i class="status-dot" aria-hidden="true"></i>CONNECTING</span>
+      </div>
+      <div class="health-readout">
+        <span class="eyebrow">HEALTH</span>
+        <span id="healthStatus" class="status-value"><i class="status-dot status-dot--offline" aria-hidden="true"></i>CHECKING</span>
+      </div>
+      <div class="hide-small">
+        <span class="eyebrow">MODEL</span>
+        <span id="modelStatus" class="status-value">OLLAMA / DETECTING</span>
+      </div>
+      <div class="hide-small">
+        <span class="eyebrow">LATENCY</span>
+        <span id="latencyStatus" class="status-value">— MS</span>
+      </div>
+      <div class="hide-small security-readout">
+        <span class="eyebrow">SECURITY</span>
+        <span id="securityStatus" class="status-value"><i class="status-dot" aria-hidden="true"></i>CHECKING</span>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <button id="openCommandPalette" class="settings-button command-palette-button" type="button" aria-label="Search JARVIS capabilities" title="Search capabilities (Ctrl+K)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg>
+        <span>Commands</span>
+      </button>
+      <details id="appMenu" class="app-menu">
+        <summary class="settings-button" aria-label="Open JARVIS menu" title="JARVIS menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          <span>Menu</span>
+        </summary>
+        <nav class="app-menu-popover" aria-label="JARVIS menu">
+          <button type="button" data-app-menu-action="command"><strong>Command</strong><small>Talk or type to JARVIS</small></button>
+          <button type="button" data-app-menu-action="capabilities"><strong>Capability Search</strong><small>Find commands, skills, panels, and guarded actions</small></button>
+          <button type="button" data-app-menu-action="projects"><strong>Projects</strong><small>Open project workspaces</small></button>
+          <button type="button" data-app-menu-action="health"><strong>System Health</strong><small>Review telemetry and alert policy</small></button>
+          <button type="button" data-app-menu-action="communications"><strong>Communications</strong><small>Configure private provider routes</small></button>
+          <button id="backgroundGlobeMenuToggle" type="button" class="app-menu-toggle" data-app-menu-action="background-globe" aria-pressed="false" disabled hidden><strong>Legacy companion <span id="backgroundGlobeMenuBadge" class="mini-toggle" aria-hidden="true">OFF</span></strong><small id="backgroundGlobeMenuStatus">Retired from the dashboard</small></button>
+          <button type="button" data-app-menu-action="globe" hidden><strong>Legacy globe</strong><small>Retired from the dashboard</small></button>
+          <button type="button" data-app-menu-action="actions"><strong>Actions</strong><small>Prepare guarded workstation actions</small></button>
+          <button type="button" data-app-menu-action="approvals"><strong>Approvals</strong><small>Review pending effects</small></button>
+          <button type="button" data-app-menu-action="settings"><strong>Settings</strong><small>Interface, devices, and defense</small></button>
+        </nav>
+      </details>
+      <button id="openSettings" class="settings-button" type="button" aria-label="Open settings and status" title="Settings and status">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-4v-.08A1.7 1.7 0 0 0 8.95 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.58 15 1.7 1.7 0 0 0 3 14H3v-4h.08A1.7 1.7 0 0 0 4.6 8.95a1.7 1.7 0 0 0-.34-1.88L4.2 7.01l2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.58 1.7 1.7 0 0 0 10 3h4a1.7 1.7 0 0 0 1.05 1.58 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.42 9 1.7 1.7 0 0 0 21 10v4a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+        <span>Settings</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="mobile-nav" aria-label="Dashboard sections">
+    <button type="button" data-mobile-target="commandPanel" class="active">Command</button>
+    <button type="button" data-mobile-target="skillsPanel">Skills</button>
+    <button type="button" data-mobile-target="operationsPanel">Operations</button>
+  </nav>
+
+  <main id="main-content" class="dashboard">
+    <section id="projectsPanel" class="panel projects-panel" aria-labelledby="projectsTitle">
+      <div class="panel-heading projects-heading">
+        <div>
+          <span class="eyebrow">ACTIVE WORKSPACES</span>
+          <h2 id="projectsTitle">Projects</h2>
+          <p id="projectsSourceStatus">Move between JARVIS work areas without starting an action.</p>
+        </div>
+        <div class="projects-heading-actions">
+          <span id="projectsCountBadge" class="count-badge">0 PROJECTS</span>
+          <button id="newProjectButton" class="secondary-button compact-button" type="button" disabled title="Project creation requires the projects service">+ New project</button>
+          <button id="refreshProjects" class="icon-button icon-button--small" type="button" aria-label="Refresh projects" title="Refresh projects">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9a7 7 0 0 1 11.5-2.1L20 9M4 15l2.4 2.1A7 7 0 0 0 17.9 15"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="userProjectGrid" class="user-project-grid" aria-live="polite">
+        <div class="project-empty-state">
+          <strong>Loading projects…</strong>
+          <span>Workspace shortcuts remain available below.</span>
+        </div>
+      </div>
+      <div class="project-subheading"><span>WORKSPACE SHORTCUTS</span><small>Navigation only — no action runs from these cards</small></div>
+      <div class="project-grid project-shortcut-grid">
+        <article class="project-card" data-project="planning">
+          <button class="project-trigger" type="button" aria-expanded="false" aria-controls="projectPlanningDetail">
+            <span class="project-icon" aria-hidden="true">CP</span>
+            <span class="project-title"><strong>Command & Planning</strong><small id="projectPlanningMetric">Task workspace ready</small></span>
+            <span id="projectPlanningStatus" class="integration-status status-disabled">LOCAL</span>
+            <svg class="project-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg>
+          </button>
+          <div id="projectPlanningDetail" class="project-detail">
+            <p>Shape requests with a selected skill, then organize follow-up work as local tasks.</p>
+            <div class="project-actions">
+              <button type="button" data-project-action="command">Focus command</button>
+              <button type="button" data-project-action="tasks">View tasks</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card" data-project="knowledge">
+          <button class="project-trigger" type="button" aria-expanded="false" aria-controls="projectKnowledgeDetail">
+            <span class="project-icon" aria-hidden="true">KM</span>
+            <span class="project-title"><strong>Knowledge & Memory</strong><small id="projectKnowledgeMetric">Semantic index available</small></span>
+            <span id="projectKnowledgeStatus" class="integration-status status-disabled">LOCAL</span>
+            <svg class="project-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg>
+          </button>
+          <div id="projectKnowledgeDetail" class="project-detail">
+            <p>Search or add explicit memories. Retrieved content remains evidence, never instructions.</p>
+            <div class="project-actions">
+              <button type="button" data-project-action="memory">Search memory</button>
+              <button type="button" data-project-action="command">Ask with context</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card" data-project="operations">
+          <button class="project-trigger" type="button" aria-expanded="false" aria-controls="projectOperationsDetail">
+            <span class="project-icon" aria-hidden="true">GO</span>
+            <span class="project-title"><strong>Guarded Operations</strong><small id="projectOperationsMetric">Approval queue protected</small></span>
+            <span id="projectOperationsStatus" class="integration-status status-ready">GUARDED</span>
+            <svg class="project-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg>
+          </button>
+          <div id="projectOperationsDetail" class="project-detail">
+            <p>Prepare typed workstation requests. Every effect stays pending until a human approves it.</p>
+            <div class="project-actions">
+              <button type="button" data-project-action="actions">Open console</button>
+              <button type="button" data-project-action="approvals">Review approvals</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card" data-project="federation">
+          <button class="project-trigger" type="button" aria-expanded="false" aria-controls="projectFederationDetail">
+            <span class="project-icon" aria-hidden="true">FD</span>
+            <span class="project-title"><strong>Federation & Defense</strong><small id="projectFederationMetric">Private posture view</small></span>
+            <span id="projectFederationStatus" class="integration-status status-disabled">CHECKING</span>
+            <svg class="project-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg>
+          </button>
+          <div id="projectFederationDetail" class="project-detail">
+            <p>Inspect trusted peers, shared roots, integrations, and Angerona's observe, recommend, and approved-execute defense chain.</p>
+            <div class="project-actions">
+              <button type="button" data-project-action="federation">Federation settings</button>
+              <button type="button" data-project-action="defense">Defense posture</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="commandPanel" class="dashboard-column dashboard-column--left mobile-active" aria-label="Command and skills">
+      <article class="panel command-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">PRIMARY CHANNEL</span>
+            <h1>Command Console</h1>
+          </div>
+          <button id="clearChat" class="text-button" type="button">Clear</button>
+        </div>
+
+        <div id="chatLog" class="chat-log" role="log" aria-live="polite" aria-relevant="additions" tabindex="0">
+          <div class="message message--jarvis">
+            <div class="message-avatar" aria-hidden="true">J</div>
+            <div class="message-content">
+              <div class="message-meta"><strong>JARVIS</strong><time>LOCAL INTERFACE</time></div>
+              <p>Command interface ready. I’ll route requests to the local Ollama core when it is available.</p>
+            </div>
+          </div>
+        </div>
+
+        <form id="chatForm" class="command-form">
+          <label for="chatInput" class="sr-only">Message JARVIS</label>
+          <div class="chat-input-row">
+            <textarea id="chatInput" name="message" rows="1" maxlength="8000" placeholder="Ask JARVIS…  (Enter to send, Shift+Enter for a new line)" required></textarea>
+            <button id="micButton" class="mic-button" type="button" aria-label="Start voice transcription" aria-pressed="false" title="Transcribe speech into the message draft">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></svg>
+              <span class="mic-label">Talk</span>
+            </button>
+          </div>
+          <div class="command-actions">
+            <span id="voiceActivity" class="voice-activity" role="status"><i aria-hidden="true"></i>VOICE IDLE</span>
+            <label class="skill-picker-label" for="chatSkill">Skill</label>
+            <select id="chatSkill" name="skill" aria-label="Select a skill for this message">
+              <option value="auto">Auto route</option>
+            </select>
+            <button id="sendMessage" class="primary-button" type="submit">
+              <span>Transmit</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 4 17 8-17 8 3-8-3-8Zm3.5 7H17l-10-4.7L7.5 11Zm0 2L7 17.7 17 13H7.5Z"/></svg>
+            </button>
+          </div>
+        </form>
+      </article>
+
+      <article id="skillsPanel" class="panel skills-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">CAPABILITY MATRIX</span>
+            <h2>Advanced Skills</h2>
+          </div>
+          <span id="skillCount" class="count-badge">0 READY</span>
+        </div>
+        <div id="skillGrid" class="skill-grid" aria-live="polite">
+          <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="dashboard-column dashboard-column--center" aria-label="Visualization and telemetry">
+      <article class="panel core-panel">
+        <div class="panel-heading panel-heading--overlay">
+          <div>
+            <span class="eyebrow">NEURAL TOPOLOGY</span>
+            <h2>Local Intelligence Core</h2>
+          </div>
+          <span id="coreModeBadge" class="mode-badge">SAFE MODE</span>
+        </div>
+        <div id="jarvisPresence" class="core-visual jarvis-presence" aria-label="Adaptive JARVIS dashboard presence" data-state="idle">
+          <canvas id="coreCanvas" aria-hidden="true"></canvas>
+          <div class="orb-label jarvis-identity" aria-hidden="true">
+            <strong id="orbLoad">0%</strong>
+            <span id="jarvisStateLabel">JARVIS · IDLE</span>
+          </div>
+          <nav id="contextLaunchers" class="context-launchers" aria-label="JARVIS contextual panels">
+            <button type="button" data-context-panel="files">FILES</button>
+            <button type="button" data-context-panel="health">DATA</button>
+            <button type="button" data-context-panel="angerona">ANGERONA</button>
+            <button type="button" data-context-panel="memory">MEMORY</button>
+            <button type="button" data-context-panel="settings">SETTINGS</button>
+          </nav>
+          <section id="jarvisContextPanel" class="jarvis-context-panel" aria-labelledby="contextPanelTitle" hidden>
+            <header>
+              <div><span class="eyebrow">CONTEXTUAL DISPLAY</span><h3 id="contextPanelTitle">JARVIS Data</h3></div>
+              <div class="context-panel-actions">
+                <button id="pinContextPanel" type="button" aria-pressed="false">PIN</button>
+                <button id="closeContextPanel" type="button" aria-label="Close contextual panel">×</button>
+              </div>
+            </header>
+            <div id="contextPanelBody" class="context-panel-body"></div>
+          </section>
+          <button id="gestureButton" class="gesture-button" type="button" aria-pressed="false">HAND CONTROL OFF</button>
+          <button id="emergencyStop" class="emergency-stop" type="button">EMERGENCY STOP</button>
+        </div>
+        <p id="coreVisualDescription" class="sr-only">Core activity visualization. Current load is 0 percent.</p>
+        <div class="core-stats">
+          <div><span>UPTIME</span><strong id="uptimeMetric">—</strong></div>
+          <div><span>CONTEXT</span><strong id="contextMetric">—</strong></div>
+          <div><span>TOKENS/S</span><strong id="tokenMetric">—</strong></div>
+          <div><span>QUEUE</span><strong id="queueMetric">0</strong></div>
+        </div>
+      </article>
+
+      <div class="metric-grid" aria-label="System telemetry">
+        <article class="panel metric-card">
+          <div class="metric-header"><span>CPU</span><strong id="cpuValue">0%</strong></div>
+          <div class="meter"><i id="cpuMeter"></i></div>
+          <span id="cpuDetail" class="metric-detail">Awaiting telemetry</span>
+        </article>
+        <article class="panel metric-card">
+          <div class="metric-header"><span>MEMORY</span><strong id="memoryValue">0%</strong></div>
+          <div class="meter"><i id="memoryMeter"></i></div>
+          <span id="memoryDetail" class="metric-detail">Awaiting telemetry</span>
+        </article>
+        <article class="panel metric-card">
+          <div class="metric-header"><span>GPU</span><strong id="gpuValue">0%</strong></div>
+          <div class="meter"><i id="gpuMeter"></i></div>
+          <span id="gpuDetail" class="metric-detail">Awaiting telemetry</span>
+        </article>
+      </div>
+
+      <article class="panel nodes-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">SERVICE FABRIC</span>
+            <h2>Active Nodes</h2>
+          </div>
+          <span id="nodeSummary" class="count-badge">0 ONLINE</span>
+        </div>
+        <div id="nodeList" class="node-list" aria-live="polite">
+          <p class="empty-state">Waiting for core status…</p>
+        </div>
+      </article>
+    </section>
+
+    <section id="operationsPanel" class="dashboard-column dashboard-column--right" aria-label="Operations">
+      <article class="panel tab-panel">
+        <div class="tab-list" role="tablist" aria-label="Operations panels">
+          <button id="tasksTab" role="tab" aria-selected="true" aria-controls="tasksPane" tabindex="0">Tasks <span id="taskCount">0</span></button>
+          <button id="memoryTab" role="tab" aria-selected="false" aria-controls="memoryPane" tabindex="-1">Memory</button>
+          <button id="approvalTab" role="tab" aria-selected="false" aria-controls="approvalPane" tabindex="-1">Approvals <span id="approvalCount">0</span></button>
+          <button id="actionsTab" role="tab" aria-selected="false" aria-controls="actionsPane" tabindex="-1">Actions</button>
+        </div>
+
+        <section id="tasksPane" class="tab-pane" role="tabpanel" aria-labelledby="tasksTab">
+          <form id="taskForm" class="compact-form">
+            <label for="taskTitle" class="sr-only">New task</label>
+            <input id="taskTitle" name="title" maxlength="160" placeholder="Create a task…" required>
+            <select id="taskPriority" name="priority" aria-label="Task priority">
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+              <option value="low">Low</option>
+            </select>
+            <label for="taskDueAt" class="sr-only">Optional due time</label>
+            <input id="taskDueAt" name="due_at" type="datetime-local" aria-label="Optional due time" title="Optional due time">
+            <button class="square-button" type="submit" aria-label="Add task">+</button>
+          </form>
+          <div id="taskList" class="task-list" aria-live="polite"></div>
+        </section>
+
+        <section id="memoryPane" class="tab-pane" role="tabpanel" aria-labelledby="memoryTab" hidden>
+          <form id="memorySearchForm" class="search-form">
+            <label for="memorySearch" class="sr-only">Search semantic memory</label>
+            <input id="memorySearch" name="query" type="search" placeholder="Search semantic memory…" required>
+            <button class="square-button" type="submit" aria-label="Search memory">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg>
+            </button>
+          </form>
+          <div id="memoryResults" class="memory-results" aria-live="polite">
+            <p class="empty-state">Search indexed local knowledge by meaning.</p>
+          </div>
+          <details class="ingest-details">
+            <summary>Ingest a memory</summary>
+            <form id="memoryIngestForm" class="stack-form">
+              <label for="memoryTitle">Title</label>
+              <input id="memoryTitle" name="title" maxlength="140" required>
+              <label for="memoryContent">Content</label>
+              <textarea id="memoryContent" name="content" rows="5" maxlength="12000" required></textarea>
+              <label for="memoryTags">Tags <small>(comma-separated)</small></label>
+              <input id="memoryTags" name="tags" placeholder="project, preference, research">
+              <button class="secondary-button" type="submit">Index memory</button>
+            </form>
+          </details>
+        </section>
+
+        <section id="approvalPane" class="tab-pane" role="tabpanel" aria-labelledby="approvalTab" hidden>
+          <div class="safety-note"><strong>Human confirmation required.</strong> Review every side effect before allowing it.</div>
+          <div id="approvalList" class="approval-list" aria-live="polite"></div>
+        </section>
+
+        <section id="actionsPane" class="tab-pane" role="tabpanel" aria-labelledby="actionsTab" hidden>
+          <div class="action-console-heading">
+            <div><span class="eyebrow">GUARDED EXECUTION</span><h3>Action Console</h3></div>
+            <button id="refreshActionCatalog" class="icon-button icon-button--small" type="button" aria-label="Refresh action catalog" title="Refresh action catalog">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9a7 7 0 0 1 11.5-2.1L20 9M4 15l2.4 2.1A7 7 0 0 0 17.9 15"/></svg>
+            </button>
+          </div>
+          <div class="safety-note"><strong>Approval queue only.</strong> Structured actions are reviewed before execution. This console never invokes a shell or auto-approves an effect.</div>
+          <form id="actionForm" class="action-form">
+            <label for="actionSelect">Operation</label>
+            <select id="actionSelect" required aria-describedby="actionRiskPreview">
+              <option value="">Loading guarded actions…</option>
+            </select>
+            <div id="actionFields" class="action-fields" aria-live="polite"></div>
+            <div id="actionRiskPreview" class="action-risk-preview" role="status">
+              <span class="integration-status status-disabled">UNAVAILABLE</span>
+              <p>Select an available operation to review its exact effect and approval boundary.</p>
+            </div>
+            <button id="queueAction" class="primary-button action-submit" type="submit" disabled>Queue for approval</button>
+          </form>
+          <div id="actionResult" class="action-result" aria-live="polite">
+            <p class="empty-state">No guarded action has been queued in this session.</p>
+          </div>
+        </section>
+      </article>
+
+      <article class="panel audit-panel">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">IMMUTABLE TRACE</span>
+            <h2>Audit Timeline</h2>
+          </div>
+          <button id="refreshAudit" class="icon-button icon-button--small" type="button" aria-label="Refresh audit timeline" title="Refresh audit timeline">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9a7 7 0 0 1 11.5-2.1L20 9M4 15l2.4 2.1A7 7 0 0 0 17.9 15"/></svg>
+          </button>
+        </div>
+        <ol id="auditList" class="audit-list" aria-live="polite"></ol>
+      </article>
+    </section>
+  </main>
+
+  <div id="toastRegion" class="toast-region" aria-live="assertive" aria-atomic="true"></div>
+
+  <dialog id="settingsDialog" class="settings-dialog" aria-labelledby="settingsTitle">
+    <form id="settingsForm" class="dialog-shell">
+      <div class="dialog-header">
+        <div><span class="eyebrow">SYSTEM CONTROL</span><h2 id="settingsTitle">Settings & Status</h2></div>
+        <button id="closeSettings" class="icon-button" type="button" aria-label="Close settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <div class="dialog-content">
+        <div id="restartRequiredNotice" class="restart-notice" role="status" hidden>
+          <span class="status-dot status-dot--warning" aria-hidden="true"></span>
+          Restart JARVIS to apply all saved changes.
+        </div>
+        <nav class="settings-nav" aria-label="Settings groups">
+          <button type="button" data-settings-target="connectionSettings">Connection</button>
+          <button type="button" data-settings-target="systemHealthSettings">System Health</button>
+          <button type="button" data-settings-target="federationSettings">Federation</button>
+          <button type="button" data-settings-target="communicationsSettings">Communications</button>
+          <button type="button" data-settings-target="integrationSettings">Integrations</button>
+          <button type="button" data-settings-target="defenseSettings">Defense</button>
+          <button type="button" data-settings-target="interfaceSettings">Interface</button>
+          <button type="button" data-settings-target="phoneSettings">Phone Voice</button>
+          <button type="button" data-settings-target="safetySettings">Safety</button>
+        </nav>
+        <section id="connectionSettings">
+          <h3 tabindex="-1">Connection</h3>
+          <dl class="status-list">
+            <div><dt>API base</dt><dd><code id="apiBaseValue">/api</code></dd></div>
+            <div><dt>Core health</dt><dd id="dialogCoreHealth">Unknown</dd></div>
+            <div><dt>Ollama model</dt><dd id="dialogModel">Detecting</dd></div>
+            <div><dt>Last contact</dt><dd id="lastContact">Never</dd></div>
+          </dl>
+        </section>
+        <section id="systemHealthSettings" class="system-health-settings">
+          <div class="settings-section-heading">
+            <div><h3 tabindex="-1">System Health</h3><p>Live local resource telemetry, warning thresholds, and opt-in alert routing.</p></div>
+            <div class="system-health-heading-actions">
+              <span id="systemHealthStatusBadge" class="integration-status status-disabled">CHECKING</span>
+              <button id="refreshSystemHealth" class="secondary-button compact-button" type="button">Refresh health</button>
+            </div>
+          </div>
+          <div id="systemHealthOverview" class="system-health-overview" aria-live="polite">
+            <article class="system-health-metric" data-health-metric="cpu">
+              <span>CPU LOAD</span><strong id="systemHealthCpuValue">Unavailable</strong>
+              <div class="system-health-meter" aria-hidden="true"><i id="systemHealthCpuMeter"></i></div>
+              <small id="systemHealthCpuDetail">Awaiting local telemetry</small>
+            </article>
+            <article class="system-health-metric" data-health-metric="memory">
+              <span>MEMORY</span><strong id="systemHealthMemoryValue">Unavailable</strong>
+              <div class="system-health-meter" aria-hidden="true"><i id="systemHealthMemoryMeter"></i></div>
+              <small id="systemHealthMemoryDetail">Awaiting local telemetry</small>
+            </article>
+            <article class="system-health-metric" data-health-metric="temperature">
+              <span>TEMPERATURE</span><strong id="systemHealthTemperatureValue">Unavailable</strong>
+              <div class="system-health-meter" aria-hidden="true"><i id="systemHealthTemperatureMeter"></i></div>
+              <small id="systemHealthTemperatureDetail">Sensor data has not loaded</small>
+            </article>
+            <article class="system-health-metric" data-health-metric="uptime">
+              <span>UPTIME</span><strong id="systemHealthUptimeValue">Unavailable</strong>
+              <small id="systemHealthUptimeDetail">Local service uptime</small>
+            </article>
+          </div>
+          <div class="system-health-detail-grid">
+            <div class="system-health-detail-panel">
+              <div class="resource-heading"><h4>Storage volumes</h4><span>LOCAL READ-ONLY</span></div>
+              <div id="systemHealthDiskList" class="system-health-disk-list" aria-live="polite"><p class="empty-state">Disk telemetry is unavailable.</p></div>
+            </div>
+            <div class="system-health-detail-panel">
+              <div class="resource-heading"><h4>Temperature sensors</h4><span>WHEN SUPPORTED</span></div>
+              <div id="systemHealthTemperatureList" class="system-health-temperature-list" aria-live="polite"><p class="empty-state">Temperature sensors have not reported.</p></div>
+            </div>
+          </div>
+          <div class="system-health-alert-heading">
+            <div><h4>Recent health alerts</h4><p>Local threshold observations only; absence of alerts does not prove hardware health.</p></div>
+            <span id="systemHealthAlertCount" class="integration-status status-disabled">0 ALERTS</span>
+          </div>
+          <div id="systemHealthAlertList" class="system-health-alert-list" aria-live="polite"><p class="empty-state">Recent health alerts are unavailable.</p></div>
+
+          <div class="system-health-config-heading"><h4>Alert policy</h4><span>LOCAL SETTINGS</span></div>
+          <label class="toggle-row system-health-monitor-row">
+              <span><strong>Enable local health monitoring</strong><small>Evaluate sampled telemetry against the saved thresholds. This controls local warnings independently of online notifications.</small></span>
+            <input id="healthMonitorEnabled" type="checkbox" role="switch" disabled>
+          </label>
+          <div class="system-health-threshold-grid" role="group" aria-label="System health alert thresholds">
+            <label for="healthCpuThreshold">CPU warning <span><input id="healthCpuThreshold" type="number" min="1" max="100" step="1" disabled><b>%</b></span></label>
+            <label for="healthMemoryThreshold">Memory warning <span><input id="healthMemoryThreshold" type="number" min="1" max="100" step="1" disabled><b>%</b></span></label>
+            <label for="healthDiskThreshold">Disk warning <span><input id="healthDiskThreshold" type="number" min="1" max="100" step="1" disabled><b>%</b></span></label>
+            <label for="healthTemperatureThreshold">Temperature warning <span><input id="healthTemperatureThreshold" type="number" min="20" max="120" step="1" disabled><b>°C</b></span></label>
+            <label for="healthCooldownMinutes">Alert cooldown <span><input id="healthCooldownMinutes" type="number" min="1" max="1440" step="1" disabled><b>MIN</b></span></label>
+            <label for="healthIntervalSeconds">Sample interval <span><input id="healthIntervalSeconds" type="number" min="10" max="3600" step="1" disabled><b>SEC</b></span></label>
+          </div>
+          <div class="system-health-notification-policy">
+            <label class="toggle-row">
+              <span><strong>Online provider notifications</strong><small>Explicit opt-in. Alerts use only selected configured routes; saving or refreshing never sends a test message.</small></span>
+              <input id="healthOnlineNotificationsEnabled" type="checkbox" role="switch" disabled>
+            </label>
+            <fieldset id="healthNotificationRouteList" disabled>
+              <legend>Eligible alert routes</legend>
+              <p class="empty-state">No online alert routes were reported.</p>
+            </fieldset>
+            <div class="system-health-notification-note"><span class="safety-lock" aria-hidden="true">!</span><p><strong>Local by default.</strong> Online delivery remains off until explicitly enabled. Provider readiness is not inferred, and no notification is sent during setup or refresh.</p></div>
+          </div>
+          <div class="system-health-save-row">
+            <p id="systemHealthSettingsState" role="status">System health policy has not loaded.</p>
+            <button id="saveSystemHealthSettings" class="primary-button compact-button" type="button" disabled>Save health policy</button>
+          </div>
+          <p id="systemHealthLastUpdated" class="defense-updated">System health has not been refreshed.</p>
+        </section>
+        <section id="federationSettings" class="federation-settings">
+          <div class="settings-section-heading">
+            <div><h3>Device Federation</h3><p>Coordinate trusted JARVIS devices over private peer endpoints.</p></div>
+            <span id="federationStatusBadge" class="integration-status status-disabled">OFFLINE</span>
+          </div>
+
+          <label class="field-row" for="instanceNameInput">
+            <span><strong>Device name</strong><small>Human-readable identity shared with trusted peers</small></span>
+            <input id="instanceNameInput" name="instance_name" maxlength="120" autocomplete="off" required>
+          </label>
+          <dl class="identity-grid">
+            <div><dt>Node identity</dt><dd id="instanceIdValue">Unavailable</dd></div>
+            <div><dt>Platform</dt><dd id="instancePlatformValue">Detecting</dd></div>
+            <div><dt>Transport</dt><dd id="federationTransportValue">Tailscale / unavailable</dd></div>
+            <div><dt>Request signing</dt><dd id="signingKeyStatus"><span class="integration-status status-disabled">NOT CONFIGURED</span></dd></div>
+          </dl>
+
+          <label class="toggle-row">
+            <span><strong>Enable device federation</strong><small>Connect only to the peer endpoints listed below</small></span>
+            <input id="federationEnabledToggle" type="checkbox" role="switch">
+          </label>
+          <label class="settings-stack" for="peerUrlsInput">
+            <span><strong>Peer endpoints</strong><small>One private HTTP(S) endpoint per line. Credentials and URL tokens are rejected.</small></span>
+            <textarea id="peerUrlsInput" rows="3" maxlength="6000" autocomplete="off" spellcheck="false" placeholder="https://trusted-mac.tailnet.ts.net"></textarea>
+          </label>
+
+          <div class="sharing-grid">
+            <label class="toggle-card">
+              <span><strong>Compute sharing</strong><small>Allow peers to offer approved compute capability</small></span>
+              <input id="computeSharingToggle" type="checkbox" role="switch">
+            </label>
+            <label class="toggle-card">
+              <span><strong>Data sharing</strong><small>Expose only explicitly listed shared resources</small></span>
+              <input id="dataSharingToggle" type="checkbox" role="switch">
+            </label>
+          </div>
+
+          <div class="resource-heading"><h4>Shared resources</h4><span>EXPLICIT ROOTS ONLY</span></div>
+          <div id="sharedRootList" class="shared-root-list" aria-live="polite"></div>
+
+          <label class="toggle-row admin-toggle">
+            <span><strong>Admin-capable mode</strong><small>Permit privileged requests to enter the remote approval queue</small></span>
+            <input id="adminCapableToggle" type="checkbox" role="switch">
+          </label>
+          <div class="target-approval-note">
+            <span class="safety-lock" aria-hidden="true">!</span>
+            <p><strong>Target-local approval is mandatory.</strong> Privileged actions are queued for approval on the target Mac. They are never auto-run from this device.</p>
+            <span id="targetApprovalStatus" class="integration-status status-warning">VERIFYING</span>
+          </div>
+        </section>
+
+        <section id="communicationsSettings" class="communications-settings">
+          <div class="settings-section-heading">
+            <div><h3 tabindex="-1">Communications</h3><p>Configure outbound delivery routes and private Web App access readiness.</p></div>
+            <div class="communications-heading-actions">
+              <span id="communicationsStatusBadge" class="integration-status status-disabled">CHECKING</span>
+              <button id="refreshCommunications" class="secondary-button compact-button" type="button">Refresh routes</button>
+            </div>
+          </div>
+          <div class="communications-safety-note">
+            <span class="safety-lock" aria-hidden="true">!</span>
+            <p><strong>Setup and connectivity tests do not send a message.</strong> Credentials are write-only, encrypted for the current Windows user, and never returned or displayed after save. Targets remain masked, and later message effects remain subject to JARVIS policy and approvals.</p>
+          </div>
+          <p id="communicationsOverview" class="communications-overview">Loading communication provider status from the local core…</p>
+          <div id="communicationProviderList" class="communication-provider-grid" aria-live="polite" aria-busy="true">
+            <div class="communication-skeleton"></div><div class="communication-skeleton"></div>
+          </div>
+          <div class="communication-routing-heading">
+            <div><h4>Priority & failover</h4><p>JARVIS tries enabled routes in this order only when the backend policy permits delivery.</p></div>
+            <button id="saveCommunicationOrder" class="secondary-button compact-button" type="button" disabled>Save order</button>
+          </div>
+          <label class="toggle-row communication-failover-row">
+            <span><strong>Allow provider failover</strong><small>May cross provider privacy boundaries. Authentication, target, payload, and uncertain-timeout failures never auto-fail over.</small></span>
+            <input id="communicationFailoverEnabled" type="checkbox" role="switch" disabled>
+          </label>
+          <div id="communicationRouteList" class="communication-route-list" role="list" aria-label="Communication provider priority" aria-live="polite">
+            <p class="empty-state">Routing order is unavailable until provider status loads.</p>
+          </div>
+          <p id="communicationsLastUpdated" class="defense-updated">Communications status has not been refreshed.</p>
+        </section>
+
+        <section id="integrationSettings">
+          <div class="settings-section-heading">
+            <div><h3>Integrations</h3><p>Local and private services available to this JARVIS instance.</p></div>
+          </div>
+          <div id="integrationList" class="integration-list" aria-live="polite">
+            <p class="empty-state">Loading integration status…</p>
+          </div>
+        </section>
+        <section id="defenseSettings" class="cyber-defense-section">
+          <div class="settings-section-heading">
+            <div><h3>Cyber Defense</h3><p>Live, defense-in-depth posture from device ingress through audited action.</p></div>
+            <div class="defense-heading-actions">
+              <span id="defenseStatusBadge" class="integration-status status-disabled">CHECKING</span>
+              <button id="refreshDefense" class="secondary-button compact-button" type="button">Refresh defense</button>
+            </div>
+          </div>
+
+          <div class="defense-counters" aria-label="Security request counters">
+            <div><span>REQUESTS</span><strong id="defenseRequests">0</strong></div>
+            <div><span>ALLOWED</span><strong id="defenseAllowed">0</strong></div>
+            <div><span>BLOCKED</span><strong id="defenseBlocked">0</strong></div>
+            <div><span>SUSPICIOUS</span><strong id="defenseSuspicious">0</strong></div>
+            <div><span>RATE LIMITED</span><strong id="defenseRateLimited">0</strong></div>
+          </div>
+
+          <section class="angerona-defense" aria-labelledby="angeronaDefenseTitle">
+            <div class="angerona-heading">
+              <div>
+                <span class="eyebrow">PRIMARY ENDPOINT DEFENSE</span>
+                <h4 id="angeronaDefenseTitle">Angerona</h4>
+                <p id="angeronaStatusDetail">Loading read-only Angerona status from the local core…</p>
+              </div>
+              <span id="angeronaStatusBadge" class="integration-status status-disabled">CHECKING</span>
+            </div>
+            <dl class="angerona-readout" aria-live="polite">
+              <div><dt>Installed</dt><dd id="angeronaInstalled">Checking</dd></div>
+              <div><dt>Process</dt><dd id="angeronaRunning">Checking</dd></div>
+              <div><dt>Read-only MCP</dt><dd id="angeronaMcp">Checking</dd></div>
+              <div><dt>Token</dt><dd id="angeronaToken">Hidden / checking</dd></div>
+              <div><dt>Control mode</dt><dd id="angeronaControlMode">Observe / approved execute</dd></div>
+              <div><dt>External actions</dt><dd id="angeronaExternalActions">Local approval required</dd></div>
+            </dl>
+            <div class="angerona-safety-note">
+              <span class="safety-lock" aria-hidden="true">!</span>
+              <p><strong>Target-locked control.</strong> JARVIS observes the authenticated read-only MCP, then can focus, move, invoke, search, type, or scroll only in one exact process-verified Angerona window after local approval. Start, stop, kill, free-coordinate clicks, and automatic tactic execution remain unavailable.</p>
+            </div>
+            <div class="angerona-actions" aria-label="Angerona defensive controls">
+              <button id="refreshAngerona" class="secondary-button compact-button" type="button">Refresh status</button>
+              <button id="loadAngeronaEvents" class="secondary-button compact-button" type="button">Load recent alerts</button>
+              <button id="goToAngeronaIntegration" class="text-button compact-button" type="button">View Integrations</button>
+              <button id="goToDefenseFlow" class="text-button compact-button" type="button">View Defense flow</button>
+            </div>
+            <div id="angeronaEventList" class="angerona-event-list" aria-live="polite" aria-busy="false">
+              <p class="empty-state">Recent alerts load only when requested. No monitoring or message action is started from this HUD.</p>
+            </div>
+            <p id="angeronaLastUpdated" class="defense-updated">Angerona status has not been refreshed.</p>
+          </section>
+
+          <div id="defenseFlow" class="defense-flow" role="list" aria-label="Cyber defense request flow" aria-live="polite">
+            <p class="empty-state">Loading defense layers…</p>
+          </div>
+
+          <div class="resource-heading"><h4>Enforced policies</h4><span>OBSERVE · APPROVE · VERIFY</span></div>
+          <dl id="defensePolicyList" class="defense-policy-list" aria-live="polite"></dl>
+          <div class="firewall-approval-note">
+            <span class="safety-lock" aria-hidden="true">!</span>
+            <p><strong>Local approval required.</strong> OS firewall mutations are queued for approval on the target device and are never applied automatically.</p>
+          </div>
+          <p id="defenseLastUpdated" class="defense-updated">Defense posture has not been refreshed.</p>
+        </section>
+        <section id="interfaceSettings">
+          <h3 tabindex="-1">Interface</h3>
+          <label class="toggle-row">
+            <span><strong>Low motion</strong><small>Reduce animations and visual movement</small></span>
+            <input id="lowMotionToggle" type="checkbox" role="switch">
+          </label>
+          <label class="toggle-row">
+            <span><strong>Compact telemetry</strong><small>Update system metrics less often</small></span>
+            <input id="compactTelemetryToggle" type="checkbox" role="switch">
+          </label>
+          <label class="toggle-row">
+            <span><strong>Speak replies</strong><small id="speakRepliesHelp">Read completed JARVIS replies aloud. Off by default.</small></span>
+            <input id="speakRepliesToggle" type="checkbox" role="switch">
+          </label>
+          <label class="toggle-row">
+            <span><strong>Adaptive dashboard</strong><small>The full dashboard is JARVIS and reveals contextual data on intent, hover, focus, mouse, or gesture.</small></span>
+            <input id="adaptiveDashboardToggle" type="checkbox" role="switch" checked>
+          </label>
+          <label class="toggle-row privacy-mode-row">
+            <span><strong>Privacy mode</strong><small>Keep stored memories out of chat context. New memory and local notification text has common credentials masked.</small></span>
+            <input id="privacyModeToggle" type="checkbox" role="switch">
+          </label>
+          <label class="toggle-row">
+            <span><strong>Hand motion control</strong><small>Opt-in local camera tracking. Frames stay in memory and are never recorded or uploaded.</small></span>
+            <input id="gestureControlToggle" type="checkbox" role="switch">
+          </label>
+          <label class="toggle-row">
+            <span><strong>Gesture low-power mode</strong><small>Reduces camera analysis rate on battery-powered systems.</small></span>
+            <input id="gestureLowPowerToggle" type="checkbox" role="switch">
+          </label>
+          <div id="globeModeSlot" class="interface-slot" aria-label="Legacy desktop companion controls" hidden>
+            <span class="interface-slot-icon" aria-hidden="true">◎</span>
+            <span><strong>Background Globe</strong><small id="globeSupportText">A larger JARVIS companion behind desktop apps. Desktop state is loading.</small></span>
+            <span id="globeRuntimeBadge" class="integration-status status-disabled">CHECKING</span>
+            <button id="backgroundGlobeQuickToggle" class="primary-button compact-button" type="button" disabled>Turn on</button>
+            <button id="openGlobeMode" class="secondary-button compact-button" type="button">Preview</button>
+          </div>
+          <div class="globe-settings-grid" hidden>
+            <label class="toggle-row globe-enable-row">
+              <span><strong>Run as desktop background companion</strong><small>Like a desktop pet, but larger and placed behind normal apps. The full HUD remains available.</small></span>
+              <input id="transparentGlobeToggle" type="checkbox" role="switch" disabled>
+            </label>
+            <label for="transparentGlobeSize">Globe size
+              <span class="globe-range-row"><input id="transparentGlobeSize" type="range" min="280" max="1200" step="20" value="720" disabled><output id="transparentGlobeSizeValue" for="transparentGlobeSize">720 px</output></span>
+            </label>
+            <label for="transparentGlobePosition">Screen position
+              <select id="transparentGlobePosition" disabled><option value="bottom_right">Bottom right</option><option value="bottom_left">Bottom left</option></select>
+            </label>
+          </div>
+          <dl class="globe-runtime-readout" aria-live="polite" hidden>
+            <div><dt>Desktop layer</dt><dd id="globeRuntimeMode">Unavailable</dd></div>
+            <div><dt>Return hotkey</dt><dd id="globeReturnHotkey">Ctrl+Alt+J</dd></div>
+            <div><dt>Recovery</dt><dd id="globeInteractionNote">Browser preview and the full dashboard remain available without desktop transparency.</dd></div>
+          </dl>
+          <p id="backgroundGlobeSaveState" class="globe-save-state" role="status" aria-live="polite" hidden>Legacy companion is retired from the visible interface.</p>
+        </section>
+        <section id="phoneSettings">
+          <div class="settings-section-heading">
+            <div><h3 tabindex="-1">Phone Voice</h3><p>Authenticated inbound calls route voice commands to the local JARVIS core.</p></div>
+            <div class="communications-heading-actions"><span id="phoneStatusBadge" class="integration-status status-disabled">DISABLED</span><button id="refreshPhoneStatus" class="secondary-button compact-button" type="button">Refresh</button></div>
+          </div>
+          <dl class="globe-runtime-readout" aria-live="polite">
+            <div><dt>Public HTTPS</dt><dd id="phoneHttpsStatus">Not configured</dd></div>
+            <div><dt>Caller + PIN</dt><dd id="phoneAuthStatus">Not configured</dd></div>
+            <div><dt>Approval policy</dt><dd>Phone cannot approve guarded actions</dd></div>
+          </dl>
+          <p id="phoneStatusDetail" class="defense-updated">Set the documented environment values, expose only /api/phone/* through your HTTPS reverse proxy, then refresh.</p>
+        </section>
+        <section id="safetySettings">
+          <h3 tabindex="-1">Safety</h3>
+          <p>External actions are never auto-approved in this interface. Pending effects remain in the approval queue until you explicitly allow or deny them.</p>
+        </section>
+      </div>
+      <div class="dialog-footer">
+        <button id="dialogRetry" class="secondary-button" type="button">Test connection</button>
+        <button id="settingsCloseButton" class="text-button" type="button">Close</button>
+        <button id="saveSettings" class="primary-button" type="submit">Save changes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="commandPaletteDialog" class="command-palette-dialog" aria-labelledby="commandPaletteTitle">
+    <div class="command-palette-shell">
+      <header>
+        <div><span class="eyebrow">CAPABILITY DECK</span><h2 id="commandPaletteTitle">What should JARVIS open?</h2></div>
+        <button id="closeCommandPalette" class="icon-button" type="button" aria-label="Close capability search">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </header>
+      <label for="commandPaletteInput" class="sr-only">Search JARVIS capabilities</label>
+      <input id="commandPaletteInput" type="search" maxlength="120" autocomplete="off" placeholder="Search commands, panels, skills, clipboard…">
+      <div id="commandPaletteResults" class="command-palette-results" role="listbox" aria-live="polite"></div>
+      <footer><span>↑↓ move · Enter open · Esc close</span><span>Ctrl+K</span></footer>
+    </div>
+  </dialog>
+
+  <dialog id="communicationSetupDialog" class="communication-setup-dialog" aria-labelledby="communicationSetupTitle">
+    <form id="communicationSetupForm" class="communication-setup-shell">
+      <div class="dialog-header">
+        <div><span class="eyebrow">COMMUNICATION ROUTE</span><h2 id="communicationSetupTitle">Provider Setup</h2></div>
+        <button id="closeCommunicationSetup" class="icon-button" type="button" aria-label="Close communication provider setup">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <div class="communication-setup-content">
+        <div class="communication-setup-summary">
+          <span id="communicationSetupIcon" class="communication-provider-icon" aria-hidden="true">CM</span>
+          <span><strong id="communicationSetupProvider">Provider</strong><small id="communicationSetupDescription">Select a provider to review its setup requirements.</small></span>
+          <span id="communicationSetupBadge" class="integration-status status-disabled">UNAVAILABLE</span>
+        </div>
+        <section class="communication-prerequisites" aria-labelledby="communicationPrerequisitesTitle">
+          <h3 id="communicationPrerequisitesTitle">Before you begin</h3>
+          <ul id="communicationPrerequisiteList"><li>Provider prerequisites are unavailable from the local core.</li></ul>
+        </section>
+        <div id="communicationSetupFields" class="communication-setup-fields"></div>
+        <label class="toggle-row communication-enable-row">
+          <span><strong>Enable this route</strong><small>Enabling affects route eligibility only; it does not send a message.</small></span>
+          <input id="communicationProviderEnabled" type="checkbox" role="switch">
+        </label>
+        <div id="communicationSetupResult" class="communication-setup-result" role="status" aria-live="polite">No setup changes have been submitted.</div>
+      </div>
+      <div class="dialog-footer">
+        <button id="cancelCommunicationSetup" class="text-button" type="button">Cancel</button>
+        <button id="testCommunicationProvider" class="secondary-button" type="button">Test saved setup</button>
+        <button id="saveCommunicationProvider" class="primary-button" type="submit">Save provider</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="projectDialog" class="project-dialog" aria-labelledby="projectDialogTitle">
+    <form id="projectForm" class="project-dialog-shell">
+      <div class="dialog-header">
+        <div><span class="eyebrow">PROJECT METADATA</span><h2 id="projectDialogTitle">New Project</h2></div>
+        <button id="closeProjectDialog" class="icon-button" type="button" aria-label="Close project editor">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <div class="project-form-content">
+        <label for="projectTitleInput">Title</label>
+        <input id="projectTitleInput" name="title" maxlength="200" required autocomplete="off">
+        <div class="project-form-grid">
+          <label for="projectStatusInput">Status
+            <select id="projectStatusInput" name="status">
+              <option value="planned">Planned</option>
+              <option value="active">Active</option>
+              <option value="paused">Paused</option>
+              <option value="completed">Completed</option>
+              <option value="archived">Archived</option>
+            </select>
+          </label>
+          <label for="projectProgressInput">Progress
+            <span class="progress-input"><input id="projectProgressInput" name="progress" type="number" min="0" max="100" value="0"><span>%</span></span>
+          </label>
+        </div>
+        <div class="project-form-grid">
+          <label for="projectPriorityInput">Priority
+            <select id="projectPriorityInput" name="priority">
+              <option value="1">Low</option><option value="2" selected>Normal</option><option value="3">Elevated</option><option value="4">High</option><option value="5">Critical</option>
+            </select>
+          </label>
+          <label for="projectAccentInput">Accent
+            <select id="projectAccentInput" name="accent">
+              <option value="slate">Slate</option><option value="blue">Blue</option><option value="cyan" selected>Cyan</option><option value="green">Green</option><option value="amber">Amber</option><option value="orange">Orange</option><option value="red">Red</option><option value="violet">Violet</option><option value="pink">Pink</option>
+            </select>
+          </label>
+        </div>
+        <label for="projectNextStepInput">Next action</label>
+        <input id="projectNextStepInput" name="next_action" maxlength="500" autocomplete="off" placeholder="A concrete, bounded next action">
+        <label for="projectNotesInput">Summary / notes</label>
+        <textarea id="projectNotesInput" name="summary" rows="5" maxlength="10000" placeholder="Context, decisions, constraints, or notes"></textarea>
+        <label for="projectTagsInput">Tags <small>(comma-separated)</small></label>
+        <input id="projectTagsInput" name="tags" maxlength="1000" autocomplete="off" placeholder="research, local, priority">
+        <label class="toggle-row project-pin-toggle">
+          <span><strong>Pin project</strong><small>Keep this project at the top of the project list.</small></span>
+          <input id="projectPinnedInput" name="pinned" type="checkbox" role="switch">
+        </label>
+      </div>
+      <div class="dialog-footer">
+        <button id="cancelProjectEdit" class="text-button" type="button">Cancel</button>
+        <button id="saveProject" class="primary-button" type="submit">Save project</button>
+      </div>
+    </form>
+  </dialog>
+
+  <section id="globeView" class="globe-view" aria-label="JARVIS globe view" hidden>
+    <canvas id="globeCanvas" aria-hidden="true"></canvas>
+    <div id="globeVoiceDisplay" class="globe-center" role="group" aria-label="Live JARVIS voice activity">
+      <div class="globe-core-identity" aria-hidden="true"><strong id="globeCoreLoad">0%</strong><span>JARVIS CORE</span></div>
+      <div class="globe-wave globe-wave--jarvis">
+        <span class="globe-wave-label">JARVIS OUTPUT <b id="globeJarvisVoiceStatus" role="status" aria-live="polite">VOICE IDLE</b></span>
+        <canvas id="globeJarvisWaveform" width="520" height="100" aria-hidden="true"></canvas>
+      </div>
+      <div class="globe-wave globe-wave--user">
+        <canvas id="globeUserWaveform" width="420" height="44" aria-hidden="true"></canvas>
+        <span class="globe-wave-label">USER / MIC <b id="globeMicStatus" role="status" aria-live="polite">MIC IDLE</b></span>
+      </div>
+      <small id="globeVoicePrivacy" class="globe-voice-privacy">Live level only · audio is never recorded or exported</small>
+    </div>
+    <button class="globe-node globe-node--projects" type="button" data-globe-target="projects" aria-describedby="globeProjectsCard"><span>Projects</span></button>
+    <div id="globeProjectsCard" class="globe-node-card globe-card--projects"><strong>Projects</strong><span id="globeProjectsMetric">Loading project status…</span><small>Open the full project workspace</small></div>
+    <button class="globe-node globe-node--angerona" type="button" data-globe-target="angerona" aria-describedby="globeAngeronaCard"><span>Angerona</span></button>
+    <div id="globeAngeronaCard" class="globe-node-card globe-card--angerona"><strong>Angerona</strong><span id="globeAngeronaMetric">Read-only observation</span><small>Operator-started loopback MCP</small></div>
+    <button class="globe-node globe-node--models" type="button" data-globe-target="models" aria-describedby="globeModelsCard"><span>MCP / Ollama</span></button>
+    <div id="globeModelsCard" class="globe-node-card globe-card--models"><strong>MCP / Ollama</strong><span id="globeModelMetric">Detecting local model…</span><small>Local intelligence services</small></div>
+    <button class="globe-node globe-node--federation" type="button" data-globe-target="federation" aria-describedby="globeFederationCard"><span>Comms / Federation</span></button>
+    <div id="globeFederationCard" class="globe-node-card globe-card--federation"><strong>Comms / Federation</strong><span id="globeFederationMetric">Checking trusted peers…</span><small>Private device transport</small></div>
+    <form id="globeCommandForm" class="globe-command-shell">
+      <label for="globeCommandInput">VOICE / TEXT COMMAND</label>
+      <div class="globe-command-row">
+        <textarea id="globeCommandInput" rows="1" maxlength="8000" placeholder="Talk or type a request…" required></textarea>
+        <button id="globeMicButton" class="globe-mic-button" type="button" aria-label="Start voice transcription" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></svg>
+          <span>Talk</span>
+        </button>
+        <button id="globeSendButton" class="primary-button" type="submit"><span>Transmit</span></button>
+      </div>
+      <span id="globeCommandHint" class="globe-command-hint" role="status">Draft synced with Command Console · Enter sends · Shift+Enter adds a line</span>
+    </form>
+    <div class="globe-controls">
+      <button id="globeDashboardButton" class="secondary-button" type="button">Open full dashboard</button>
+      <button id="globeSettingsButton" class="secondary-button" type="button">Settings</button>
+      <button id="globeExitButton" class="text-button" type="button">Exit globe mode</button>
+    </div>
+    <p class="globe-transparency-note">Transparent presentation where supported; secure dark fallback otherwise.</p>
+  </section>
+
+  <template id="messageTemplate">
+    <div class="message">
+      <div class="message-avatar" aria-hidden="true"></div>
+      <div class="message-content">
+        <div class="message-meta"><strong></strong><time></time></div>
+        <p></p>
+      </div>
+    </div>
+  </template>
+
+  <noscript><div class="noscript">JARVIS requires JavaScript for its interactive command interface.</div></noscript>
+  <script type="module" src="./gesture-controller.js"></script>
+  <script src="./app.js?app_version=0.4.0" defer></script>
+</body>
+</html>

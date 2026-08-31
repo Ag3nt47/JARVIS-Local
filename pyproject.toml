@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jarvis-local"
+version = "0.4.0"
+description = "A secure, local-first JARVIS assistant powered by Ollama"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "JARVIS Local contributors" }]
+requires-python = ">=3.11"
+dependencies = [
+  "cryptography>=50,<51",
+  "fastapi>=0.115,<1",
+  "httpx>=0.27,<1",
+  "psutil>=5.9,<8",
+  "pydantic>=2.8,<3",
+  "uvicorn[standard]>=0.30,<1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=9.0.3,<10", "pytest-asyncio>=1.4,<2", "ruff>=0.6,<1"]
+desktop = ["pyinstaller>=6.16,<7", "pywebview>=6,<7", "pywinauto>=0.6.9,<1"]
+
+[project.scripts]
+jarvis = "jarvis.cli:main"
+jarvis-desktop = "jarvis.desktop:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/jarvis"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
