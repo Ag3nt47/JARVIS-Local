@@ -115,6 +115,7 @@ def test_task_deduplication_update_and_inactivity(database: Database, audit: Aud
 async def test_due_task_notifies_once_and_rearms_when_deadline_changes(
     database: Database, audit: AuditLog, settings: Settings
 ) -> None:
+    settings.quiet_hours_enabled = False
     tasks = TaskService(database, audit)
     notifications = NotificationService(database, settings)
     scheduler = Scheduler(settings, tasks, notifications)
